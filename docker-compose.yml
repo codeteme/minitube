@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:15-alpine
-    container_name: media_server_postgres
+    container_name: minitube_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: media_user
@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile
       args:
         INSTALL_ASR_DEPS: "1"
-    container_name: media_server_video
+    container_name: minitube_video
     restart: unless-stopped
     depends_on:
       db:
@@ -49,7 +49,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: media_server_admin
+    container_name: minitube_admin
     restart: unless-stopped
     depends_on:
       db:
@@ -70,7 +70,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: media_server_communication
+    container_name: minitube_communication
     restart: unless-stopped
     depends_on:
       db:
@@ -91,16 +91,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: user_accounts_and_preferences
+    container_name: minitube_user_accounts
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - ./src/user_prefs_and_accounts_service/.env
     environment:
       DATABASE_URL: postgresql://media_user:media_pass@db:5432/media_db
       PYTHONUNBUFFERED: "1"
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      ALGORITHM: "HS256"
+      USER_ACCOUNTS_PUBLIC_BASE_URL: http://localhost:8003
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin123}
     ports:
       - "8003:8003"
     command: ["uvicorn", "src.user_prefs_and_accounts_service.main:app", "--host", "0.0.0.0", "--port", "8003"]
@@ -114,7 +117,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: media_server_dashboard
+    container_name: minitube_dashboard
     restart: unless-stopped
     depends_on:
       db:
@@ -139,7 +142,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: media_server_intelligence
+    container_name: minitube_intelligence
     restart: unless-stopped
     environment:
       PYTHONUNBUFFERED: "1"
@@ -159,7 +162,7 @@ services:
 
   frontend:
     image: node:20-alpine
-    container_name: media_server_frontend
+    container_name: minitube_frontend
     restart: unless-stopped
     working_dir: /app/frontend
     depends_on:
