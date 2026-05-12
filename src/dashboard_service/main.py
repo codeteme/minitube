@@ -41,8 +41,6 @@ app = FastAPI(title="Dashboard Service")
 _default_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://vcm-52418.vm.duke.edu:5173",
-    "http://vcm-52527.vm.duke.edu:5173",
 ]
 _extra_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 

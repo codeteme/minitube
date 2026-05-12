@@ -18,6 +18,4 @@ PASSWORD_MIN_LENGTH = 8
 CORS_ALLOW_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://vcm-52418.vm.duke.edu:5173",
-    "http://vcm-52527.vm.duke.edu:5173",
 ]
