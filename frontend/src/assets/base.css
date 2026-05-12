@@ -1,0 +1,163 @@
+/* Native controls (select, scrollbars, etc.) follow the active palette when this matches `data-ui-theme`. */
+html {
+  color-scheme: dark;
+}
+
+:root {
+  /* Surfaces */
+  --bg-0: #0f0f0f;
+  --bg-1: #1a1a1a;
+  --bg-2: #141414;
+  --bg-3: #121212;
+  --bg-4: #101010;
+  --bg-5: #161616;
+  --bg-6: #171717;
+  --bg-7: #1f1f1f;
+  --bg-8: #0a0a0a;
+  --bg-9: #111111;
+  --bg-deep: #000000;
+  --surface-raised: #202020;
+  --surface-chip: #1d1d1d;
+  --surface-2a: #2a2a2a;
+  --surface-auth: rgba(18, 18, 18, 0.88);
+  --surface-auth-2: rgba(18, 18, 18, 0.9);
+  --surface-auth-input: rgba(10, 10, 10, 0.86);
+  --surface-glass: rgba(0, 0, 0, 0.35);
+  --surface-subtle: rgba(0, 0, 0, 0.35);
+
+  /* Typography */
+  --text-main: #f3f4f6;
+  --text-body: #e5e7eb;
+  --text-subtle: #d4d7de;
+  --text-soft: #c2c8d2;
+  --text-muted: #9ca3af;
+  --text-faint: #6b7280;
+  --text-inverse: #ffffff;
+
+  /* Borders & dividers */
+  --border-faint: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-medium: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --border-heavy: rgba(255, 255, 255, 0.24);
+  --border-extra: rgba(255, 255, 255, 0.28);
+
+  /* Interactive overlays */
+  --overlay-hover: rgba(255, 255, 255, 0.08);
+  --overlay-hover-mid: rgba(255, 255, 255, 0.1);
+  --overlay-press: rgba(255, 255, 255, 0.05);
+  --overlay-scrim: rgba(0, 0, 0, 0.6);
+
+  /* Chrome */
+  --topbar-bg: rgba(7, 8, 10, 0.8);
+  --shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.35);
+  --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-dropdown-lg: 0 12px 30px rgba(0, 0, 0, 0.38);
+
+  /* Brand / accents (shared) */
+  --accent: #dc2626;
+  --accent-soft: #ef4444;
+  --accent-wash: rgba(220, 38, 38, 0.16);
+  --accent-wash-hover: rgba(220, 38, 38, 0.18);
+  --accent-outline: rgba(239, 68, 68, 0.65);
+  --accent-outline-soft: rgba(239, 68, 68, 0.75);
+  --accent-text-soft: #fda4af;
+  --accent-text-mid: #ff9f8b;
+  --accent-text-strong: #ff7d59;
+  --accent-border-focus: #ff5a3d;
+  --accent-glow: rgba(255, 90, 61, 0.2);
+
+  /* Status / small accents */
+  --ok-text: #a7f3be;
+  --ok-text-strong: #86efac;
+  --warn-text: #fde68a;
+  --link-muted: #cfd2d8;
+
+  /* Aliases used by body */
+  --bg-page: var(--bg-0);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text-main);
+  background: var(--bg-page);
+  line-height: 1.6;
+  font-family: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[data-ui-theme='light'] {
+  color-scheme: light;
+  --bg-0: #f4f4f5;
+  --bg-1: #ffffff;
+  --bg-2: #f9fafb;
+  --bg-3: #ffffff;
+  --bg-4: #f3f4f6;
+  --bg-5: #f9fafb;
+  --bg-6: #fafafa;
+  --bg-7: #ffffff;
+  --bg-8: #e5e7eb;
+  --bg-9: #f3f4f6;
+  --bg-deep: #f9fafb;
+  --surface-raised: #e5e7eb;
+  --surface-chip: #f3f4f6;
+  --surface-2a: #e5e7eb;
+  --surface-auth: rgba(255, 255, 255, 0.97);
+  --surface-auth-2: rgba(255, 255, 255, 0.95);
+  --surface-auth-input: #ffffff;
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --surface-subtle: rgba(0, 0, 0, 0.06);
+
+  --text-main: #111827;
+  --text-body: #374151;
+  --text-subtle: #4b5563;
+  --text-soft: #6b7280;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+  --text-inverse: #ffffff;
+
+  --border-faint: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.1);
+  --border-medium: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --border-heavy: rgba(0, 0, 0, 0.2);
+  --border-extra: rgba(0, 0, 0, 0.24);
+
+  --overlay-hover: rgba(0, 0, 0, 0.05);
+  --overlay-hover-mid: rgba(0, 0, 0, 0.08);
+  --overlay-press: rgba(0, 0, 0, 0.04);
+  --overlay-scrim: rgba(17, 24, 39, 0.45);
+
+  --topbar-bg: rgba(255, 255, 255, 0.92);
+  --shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.1);
+  --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-dropdown-lg: 0 12px 30px rgba(0, 0, 0, 0.1);
+
+  --accent: #b91c1c;
+  --accent-soft: #dc2626;
+  --accent-wash: rgba(220, 38, 38, 0.1);
+  --accent-wash-hover: rgba(220, 38, 38, 0.14);
+  --accent-outline: rgba(220, 38, 38, 0.45);
+  --accent-outline-soft: rgba(220, 38, 38, 0.55);
+  --accent-text-soft: #be123c;
+  --accent-text-mid: #e11d48;
+  --accent-text-strong: #9f1239;
+  --accent-border-focus: #e11d48;
+  --accent-glow: rgba(225, 29, 72, 0.2);
+
+  --ok-text: #047857;
+  --ok-text-strong: #059669;
+  --warn-text: #b45309;
+  --link-muted: #4b5563;
+
+  --bg-page: var(--bg-0);
+}
