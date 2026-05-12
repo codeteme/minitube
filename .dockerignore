@@ -1,0 +1,12 @@
+.git
+.venv
+.mov
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+pytest_cache/
+node_modules/
+frontend/node_modules/
+frontend/.vite/
+postgres_data/

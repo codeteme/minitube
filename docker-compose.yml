@@ -1,0 +1,189 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: media_server_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: media_user
+      POSTGRES_PASSWORD: media_pass
+      POSTGRES_DB: media_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U media_user -d media_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  video:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_ASR_DEPS: "1"
+    container_name: media_server_video
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://media_user:media_pass@db:5432/media_db
+      PYTHONUNBUFFERED: "1"
+      COMMUNICATION_API_BASE_URL: http://communication:8002
+      DASHBOARD_API_BASE_URL: http://dashboard:8004
+      AUTH_API_BASE_URL: http://user-accounts-prefs:8003
+      ASR_ENABLED: "true"
+      ASR_MODEL_SIZE: "tiny"
+      ASR_COMPUTE_TYPE: "int8"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src/video_crud_service/uploads:/app/src/video_crud_service/uploads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: media_server_admin
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://media_user:media_pass@db:5432/media_db
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "8001:8001"
+    command: ["uvicorn", "src.admin_service.main:app", "--host", "0.0.0.0", "--port", "8001"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  communication:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: media_server_communication
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://media_user:media_pass@db:5432/media_db
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "8002:8002"
+    command: ["uvicorn", "src.communication_service.main:app", "--host", "0.0.0.0", "--port", "8002"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  user-accounts-prefs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: user_accounts_and_preferences
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./src/user_prefs_and_accounts_service/.env
+    environment:
+      DATABASE_URL: postgresql://media_user:media_pass@db:5432/media_db
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "8003:8003"
+    command: ["uvicorn", "src.user_prefs_and_accounts_service.main:app", "--host", "0.0.0.0", "--port", "8003"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8003/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: media_server_dashboard
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      intelligence:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://media_user:media_pass@db:5432/media_db
+      PYTHONUNBUFFERED: "1"
+      COMMUNICATION_API_BASE_URL: http://communication:8002
+      INTELLIGENCE_API_BASE_URL: http://intelligence:8005
+    ports:
+      - "8004:8004"
+    command: ["uvicorn", "src.dashboard_service.main:app", "--host", "0.0.0.0", "--port", "8004"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8004/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  intelligence:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: media_server_intelligence
+    restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: "1"
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_SUMMARY_MODEL: ${OPENAI_SUMMARY_MODEL:-gpt-4o-mini}
+      OPENAI_SUMMARY_ENABLED: ${OPENAI_SUMMARY_ENABLED:-true}
+      OPENAI_SUMMARY_MAX_OUTPUT_TOKENS: ${OPENAI_SUMMARY_MAX_OUTPUT_TOKENS:-220}
+    ports:
+      - "8005:8005"
+    command: ["uvicorn", "src.intelligence_service.main:app", "--host", "0.0.0.0", "--port", "8005"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8005/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    image: node:20-alpine
+    container_name: media_server_frontend
+    restart: unless-stopped
+    working_dir: /app/frontend
+    depends_on:
+      video:
+        condition: service_healthy
+      admin:
+        condition: service_healthy
+      communication:
+        condition: service_healthy
+      user-accounts-prefs:
+        condition: service_healthy
+      dashboard:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+    command:
+      [
+        "sh",
+        "-c",
+        "corepack enable && pnpm install && pnpm dev --host 0.0.0.0 --port 5173",
+      ]
+
+volumes:
+  db_data:
