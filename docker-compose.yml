@@ -161,7 +161,7 @@ services:
       retries: 10
 
   frontend:
-    image: node:20-alpine
+    image: node:22-alpine
     container_name: minitube_frontend
     restart: unless-stopped
     working_dir: /app/frontend
@@ -185,7 +185,7 @@ services:
       [
         "sh",
         "-c",
-        "corepack enable && pnpm install && pnpm dev --host 0.0.0.0 --port 5173",
+        "npm install && npm run dev -- --host 0.0.0.0 --port 5173",
       ]
 
 volumes:
